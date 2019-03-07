@@ -1,0 +1,113 @@
+{
+"1": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/1",
+  "description": "The issue is open and ready for the assignee to start work on it.",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/open.png",
+  "name": "Open",
+  "id": "1",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/2",
+    "id": 2,
+    "key": "new",
+    "colorName": "blue-gray",
+    "name": "To Do"
+  }
+},
+"2": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/3",
+  "description": "This issue is being actively worked on at the moment by the assignee.",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/inprogress.png",
+  "name": "In Progress",
+  "id": "3",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/4",
+    "id": 4,
+    "key": "indeterminate",
+    "colorName": "yellow",
+    "name": "In Progress"
+  }
+},
+"3": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/4",
+  "description": "This issue was once resolved, but the resolution was deemed incorrect. From here issues are either marked assigned or resolved.",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/reopened.png",
+  "name": "Reopened",
+  "id": "4",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/2",
+    "id": 2,
+    "key": "new",
+    "colorName": "blue-gray",
+    "name": "To Do"
+  }
+},
+"4": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/5",
+  "description": "A resolution has been taken, and it is awaiting verification by reporter. From here issues are either reopened, or are closed.",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/resolved.png",
+  "name": "Resolved",
+  "id": "5",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/3",
+    "id": 3,
+    "key": "done",
+    "colorName": "green",
+    "name": "Done"
+  }
+},
+"5": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/6",
+  "description": "The issue is considered finished, the resolution is correct. Issues which are closed can be reopened.",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/closed.png",
+  "name": "Closed",
+  "id": "6",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/3",
+    "id": 3,
+    "key": "done",
+    "colorName": "green",
+    "name": "Done"
+  }
+},
+"6": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/10003",
+  "description": "Assigned",
+  "iconUrl": "http://jira.spiritcorp.com/images/icons/statuses/generic.png",
+  "name": "Assigned",
+  "id": "10003",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/3",
+    "id": 3,
+    "key": "done",
+    "colorName": "green",
+    "name": "Done"
+  }
+},
+"7": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/10007",
+  "description": "",
+  "iconUrl": "http://jira.spiritcorp.com/",
+  "name": "To Do",
+  "id": "10007",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/2",
+    "id": 2,
+    "key": "new",
+    "colorName": "blue-gray",
+    "name": "To Do"
+  }
+},
+"8": {
+  "self": "http://jira.spiritcorp.com/rest/api/2/status/10008",
+  "description": "",
+  "iconUrl": "http://jira.spiritcorp.com/",
+  "name": "In Review",
+  "id": "10008",
+  "statusCategory": {
+    "self": "http://jira.spiritcorp.com/rest/api/2/statuscategory/4",
+    "id": 4,
+    "key": "indeterminate",
+    "colorName": "yellow",
+    "name": "In Progress"
+  }
+}}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link type="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" async></script>
+</head>
+<body>
+
+	<!--<div class="wraper">-->
+		<!--<div class="header">-->
+			<!--<h1>Analysing bug's statuses in Test Runs (JIRA Structure)</h1>-->
+		<!--</div>-->
+		<!--<div class="container">-->
+			<!--<ul class="menu__list">-->
+				<!--<li class="menu-list__element" data-command-number="1">-->
+					<!--create backup of test run-->
+				<!--</li>-->
+				<!--<li class="menu-list__element" data-command-number="2">-->
+					<!--restore test run	-->
+				<!--</li>-->
+				<!--<li class="menu-list__element" data-command-number="3">-->
+					<!--analize test run		-->
+				<!--</li>-->
+				<!--<li class="menu-list__element" data-command-number="4">-->
+					<!--create test run 	-->
+				<!--</li>-->
+				<!--<li class="menu-list__element" data-command-number="5">-->
+					<!--delete test run 	-->
+				<!--</li>-->
+				<!--<li class="menu-list__element" data-command-number="6">-->
+					<!--draw a plot of structure TR	-->
+				<!--</li>-->
+			<!--</ul>-->
+		<!--</div>-->
+		<!--<div class="footer"></div>-->
+	<!--</div>-->
+		
+	<canvas id="myChart" width="400" height="400"></canvas>
+
+	<script src="app.js"></script>
+
+
+	<script>
+		var listElements = document.getElementsByClassName('menu-list__element');
+
+		for (var i = 0; i < listElements.length; i++) {
+			listElements[i].addEventListener('click', function (e) {
+				e.preventDefault()
+				console.log(this)	
+			})			
+		}
+
+	</script>
+</body>
+</html>
