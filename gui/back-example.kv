@@ -1,0 +1,15 @@
+#:import os os
+#:import pl platform
+
+<Root>:
+    orientation: 'vertical'
+    Label:
+        text: 'Input your name'
+    TextInput:
+        id: form
+    Label:
+        id: label
+    Button:
+        text: 'OK'
+        on_press:
+            label.text = 'Hello '+form.text+'; your path: '+pl.platform()+''

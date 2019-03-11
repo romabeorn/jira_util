@@ -13,17 +13,7 @@ import requests as req
 import xlrd
 import xmltodict
 
-import l
-
-
-class Staff:
-    @staticmethod
-    def replace(a, b):
-        _ = a
-        a = b
-        b = _
-        return a, b
-
+# import l
 
 class Vars:
     """ Класс параметров для выполнения кода """
@@ -34,6 +24,7 @@ class Vars:
         self.password = 'NIJ812rdf'  # Пароль сервис-пользователя
         self.protocol_d = 'http'  # протокол, на котором поддерживается JIRA
         self.PORT_NUMBER = 8000
+        self.test_run = ''
         self.json_request_for_xml = {
             "forestSpec": '{"structureId": ""}',  # Обязательно указать ID структуры
             "viewSpec": {
@@ -612,15 +603,15 @@ class JsonHelper:
                            'authorKey': author,
                            'notes': note})
 
-    @staticmethod
-    def get_map_json():
-        with open('map_test.json', 'r') as f:
-            return json.load(f)[l.l['jira.testrun.structure.id']]['tests_map']
-
-    @staticmethod
-    def get_skip_list():
-        with open('map_test.json', 'r') as f:
-            return json.load(f)[l.l['jira.testrun.structure.id']]['skip']
+    # @staticmethod
+    # def get_map_json():
+    #     with open('map_test.json', 'r') as f:
+    #         return json.load(f)[l.l['jira.testrun.structure.id']]['tests_map']
+    #
+    # @staticmethod
+    # def get_skip_list():
+    #     with open('map_test.json', 'r') as f:
+    #         return json.load(f)[l.l['jira.testrun.structure.id']]['skip']
 
 
 # print(JsonHelper().get_tc_json('Hailed','Roman', 'Note'))
@@ -633,7 +624,7 @@ class XmlHelper:
 
     @staticmethod
     def create_test_run_dir():
-        path = os.path.abspath('reports/' + l.l['jira.testrun.name'])
+        path = os.path.abspath('reports/' + Vars().test_run)
         if not os.path.exists(path):
             os.mkdir(path)
         return True
@@ -686,15 +677,15 @@ class XmlResult:
         return self.result
 
     # Переносит все лог-файлы из reports в папку с test run
-    def move_results_to_dir(self):
-        for file in os.listdir('reports/'):
-            if file.startswith(self.name):  # if pattern
-                if file.endswith('.xml'):
-                    os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
-                elif file.endswith('.mp4'):
-                    os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
-                elif file.endswith('.png'):
-                    os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
+    # def move_results_to_dir(self):
+    #     for file in os.listdir('reports/'):
+    #         if file.startswith(self.name):  # if pattern
+    #             if file.endswith('.xml'):
+    #                 os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
+    #             elif file.endswith('.mp4'):
+    #                 os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
+    #             elif file.endswith('.png'):
+    #                 os.rename('reports/' + file, 'reports/' + l.l['jira.testrun.name'] + '/' + file)
 
 
 class PlotTestRuns(TestRun):
@@ -705,9 +696,10 @@ class PlotTestRuns(TestRun):
         self.range_last_test_run = ''
         self.selective_selected_test_run = []
 
-    def accept_values(self, value):
+    @staticmethod
+    def accept_values(value, test_runs_list):
         if value.isdecimal():
-            if int(value) in range(1, len(self.test_runs_list) + 1):
+            if int(value) in range(1, len(test_runs_list) + 1):
                 return True
             else:
                 return False
@@ -716,8 +708,6 @@ class PlotTestRuns(TestRun):
 
     def get_test_run_id_from_test_runs_json(self, selected_test_runs):
         return [f'{self.test_runs_json[str(i)]}' for i in selected_test_runs]
-
-    # [('VM 6.2.0.377', []), ('VM 6.2.0.390 ', ['VM-10145', 'VM-10136', 'VM-9680', 'VM-9580', 'VM-10142'])]
 
     @staticmethod
     def get_info_about_issue(issue_id):
@@ -730,29 +720,23 @@ class PlotTestRuns(TestRun):
             "description": res['fields']['description'],
             "issuetype": res['fields']['issuetype']['name'],
             "status": res['fields']['status']['name'],
-            "statusId" : res['fields']['status']['id'],
+            "statusId": res['fields']['status']['id'],
             "priority": res['fields']['priority']['name'],
             "priorityId": res['fields']['priority']['id'],
             "creator": res['fields']['creator']['displayName'],
             "assignee": res['fields']['assignee']['displayName']
         }
 
-    def rever_sort(self):
+    @staticmethod
+    def dump_reverted_massive(bugs_array, test_run_and_bug_tuples, selected_test_runs_range):
         lst = []
-        sys.stdout.write('                        |')
-        for _ in self.general_bugs:
-            sys.stdout.write(' ')
-        sys.stdout.write('|\n')
-        sys.stdout.write('      Analysing       = ')
-        sys.stdout.write('[')
-        for id, bug in enumerate(self.general_bugs, 1):
+        for id, bug in enumerate(bugs_array, 1):
             json_mas = {}
-            # print(bug)
             json_mas['id'] = id
             json_mas['bugName'] = bug
             json_mas['versions'] = []
-            json_mas['issueProps'] = self.get_info_about_issue(bug)
-            for run in self.global_list_of_bugs_with_run:
+            json_mas['issueProps'] = PlotTestRuns.get_info_about_issue(bug)
+            for run in test_run_and_bug_tuples:
                 if bug in run[1]:
                     json_mas['versions'].append({
                         'name': run[0],
@@ -767,22 +751,55 @@ class PlotTestRuns(TestRun):
             lst.sort(key=lambda s: s['issueProps']['priorityId'], reverse=True)
             for id, bug in enumerate(lst, 1):
                 lst[id-1]['id'] = id
-            sys.stdout.write('.')
-            sys.stdout.flush()
-        sys.stdout.write(']')
-        sys.stdout.flush()
 
-        # print(self.global_list_of_bugs_with_run)
-        lst = {"Labels": self.selected_test_runs_range,
+        lst = {"Labels": selected_test_runs_range,
                "BigData": lst}
         # print(lst)
         with open('plot/bigData.json', 'w') as f:
             f.write(json.dumps(lst, indent=4))
 
+        return lst
+
     @staticmethod
     def f():
         server = HTTPServer(('', Vars().PORT_NUMBER), myHandler)
         server.serve_forever()
+
+    @staticmethod
+    def input_ordered_ids_of_set(test_runs_list):
+        massive = set()
+        print('Type identifiers of Test Runs\'. When finish print "ok"')
+        while True:
+            run = input(f'{len(massive) + 1}: ')
+            if run == 'ok':
+                break
+            if PlotTestRuns.accept_values(run, test_runs_list):
+                massive.add(run)
+            print(massive)
+        massive = list(map(str, sorted([int(i) for i in massive])))
+        return massive
+
+    def get_array_of_test_runs_and_bugs_there(self, jira_test_run_ids):
+        print(jira_test_run_ids)
+        global_list_of_bugs_with_run = list()
+        bugs_array = set()
+        for id, test_run_id in enumerate(jira_test_run_ids):
+            print(id)
+            local_list_of_bugs = list()
+            test_run_inter_active_mode = TestRun(self.structure_id, self.selected_structure_name)
+            test_run_inter_active_mode.selected_test_run_id = test_run_id
+            test_run_inter_active_mode.selected_test_run_name = self.selected_test_runs_range[id]
+            test_run_inter_active_mode.download_test_run_xml_file()
+            backup = BackUpAnalyzer()
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            backup.select_backup_file(test_run_inter_active_mode.selected_test_run_name_xls)
+            for i in backup.analyze_xls(log=False):
+                local_list_of_bugs.append(i)
+                bugs_array.add(i)
+            global_list_of_bugs_with_run.append(
+                (test_run_inter_active_mode.selected_test_run_name, local_list_of_bugs))
+        return bugs_array, global_list_of_bugs_with_run
 
     def setup_plot_interactive_mode(self):
         mode = input('\nSelect mode of plotting\n'
@@ -794,59 +811,50 @@ class PlotTestRuns(TestRun):
             if mode == '1':
                 first_run = input('Enter id of the first  Test Run: ')
                 second_run = input('Enter id of the second Test Run: ')
-                if self.accept_values(first_run) and self.accept_values(second_run):
+                if self.accept_values(first_run, self.test_runs_list) and self.accept_values(second_run, self.test_runs_list):
                     if int(first_run) > int(second_run):
-                        first_run, second_run = Staff.replace(first_run, second_run)
-                    range_runs = range(int(first_run), int(second_run) + 1)
-                    self.selected_test_runs_range = [self.test_runs_list[int(i) - 1] for i in range_runs]
-                    # print(self.selected_test_runs_range)
-                    self.list_ids = self.get_test_run_id_from_test_runs_json(range_runs)
-                    # print(self.list_ids)
-                    self.global_list_of_bugs_with_run = []
-                    self.general_bugs = set()
+                        first_run, second_run = second_run, first_run
+                    range_runs = range(int(first_run), int(second_run) + 1)  # Список номеров между выбранными прогонами
 
-                    sys.stdout.write('                        |')
-                    for _ in range_runs:
-                        sys.stdout.write(' ')
-                    sys.stdout.write('|\n')
-                    sys.stdout.write('Downloading Test Runs = ')
-                    sys.stdout.write('[')
-                    for id, test_run_id in enumerate(self.list_ids):
-                        local_list_of_bugs = []
-                        test_run_inter_active_mode = TestRun(self.structure_id, self.selected_structure_name)
-                        test_run_inter_active_mode.selected_test_run_id = test_run_id
-                        test_run_inter_active_mode.selected_test_run_name = self.selected_test_runs_range[id]
-                        test_run_inter_active_mode.download_test_run_xml_file()
-                        backup = BackUpAnalyzer()
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
-                        backup.select_backup_file(test_run_inter_active_mode.selected_test_run_name_xls)
-                        for i in backup.analyze_xls(log=False):
-                            local_list_of_bugs.append(i)
-                            self.general_bugs.add(i)
-                        self.global_list_of_bugs_with_run.append(
-                            (test_run_inter_active_mode.selected_test_run_name, local_list_of_bugs))
-                    sys.stdout.write(']\n')
-                    sys.stdout.flush()
+                    self.selected_test_runs_range = [self.test_runs_list[int(i) - 1] for i in range_runs]  # Список названий выбранных прогонов
 
-                    self.rever_sort()
+                    self.jira_test_run_ids = self.get_test_run_id_from_test_runs_json(range_runs)  # Список JIRA ids прогонов
+
+                    self.bugs_array, self.test_run_and_bugs_tuples = self.get_array_of_test_runs_and_bugs_there(self.jira_test_run_ids)
+
+                    # Меняем вид в котором прогон состоял из багов на вид, где баг состоит из прогонов в которых он есть и делаем дамп в файл
+                    # bugs_array - множество багов,
+                    # test_run_and_bugs_tuples - список кортежей (прогон - спиок багов),
+                    # selected_test_runs_range - cписок названий выбранных прогонов
+                    PlotTestRuns.dump_reverted_massive(self.bugs_array,
+                                                       self.test_run_and_bugs_tuples,
+                                                       self.selected_test_runs_range)
                 else:
                     raise ValueError
 
             elif mode == '2':  # Selective mode
-                # massive = set()
-                # log = True
-                # print('Type identifiers of Test Runs\'. When finish print "ok"')
-                # while log:
-                #     run = input(f'{len(massive) + 1}: ')
-                #     if run == 'ok':
-                #         break
-                #     if self.accept_values(run):
-                #         massive.add(run)
-                #     print(massive)
-                # selected_test_runs = [self.test_runs_list[int(i)-1] for i in massive]
-                # print(selected_test_runs)
-                print('Developing...')
+                range_of_runs = PlotTestRuns.input_ordered_ids_of_set(self.test_runs_list)
+                print(range_of_runs)  # ['2', '4', '8', '13', '21', '30', '31']
+                selected_test_runs = [self.test_runs_list[int(i)-1] for i in range_of_runs]  # Список названий выбранных прогонов
+                jira_test_run_ids = self.get_test_run_id_from_test_runs_json(range_of_runs)  # Список id прогонов JIRA
+                print(jira_test_run_ids)  # ['17', '27', '61', '78', '97', '205', '211']
+                print(selected_test_runs) # ['VM 6.2.0.390 ', 'VM 6.2.0.411', 'VM 6.3.0.12', 'VM 6.3.0.47', 'VM 6.3.0.77', 'VM 6.3.3.35', 'VM 6.3.3.37']
+                self.selected_test_runs_range = [self.test_runs_list[int(i) - 1] for i in
+                                                 range_of_runs]  # Список названий выбранных прогонов
+
+                self.jira_test_run_ids = self.get_test_run_id_from_test_runs_json(
+                    range_of_runs)  # Список JIRA ids прогонов
+
+                self.bugs_array, self.test_run_and_bugs_tuples = self.get_array_of_test_runs_and_bugs_there(
+                    self.jira_test_run_ids)
+
+                # Меняем вид в котором прогон состоял из багов на вид, где баг состоит из прогонов в которых он есть и делаем дамп в файл
+                # bugs_array - множество багов,
+                # test_run_and_bugs_tuples - список кортежей (прогон - спиок багов),
+                # selected_test_runs_range - cписок названий выбранных прогонов
+                PlotTestRuns.dump_reverted_massive(self.bugs_array,
+                                                   self.test_run_and_bugs_tuples,
+                                                   self.selected_test_runs_range)
 
             else:
                 print('Wrong mode. Exiting')
@@ -854,8 +862,8 @@ class PlotTestRuns(TestRun):
         except ValueError:
             print('Wrong selection try again')
             return self.setup_plot_interactive_mode()
-        # except:
-        #     print('Error')
+        except:
+            print('Error')
 
 
 class myHandler(BaseHTTPRequestHandler):
@@ -958,7 +966,7 @@ class JiraHelper:
 
         elif decision == '4':
             # test_run_id = TestRun.get_test_run_id_by_name(structure_id, jira_structure_name, jira_test_run_name)
-            JiraUtil().skip_results('TEST')
+            # JiraUtil().skip_results('TEST')
             print('Developing...')
 
         elif decision == '5':
@@ -1017,7 +1025,12 @@ class JiraHelper:
 
 
 if '__main__' == __name__:
-    JiraHelper.main()
+    try:
+        req.get(f'{Vars().protocol_d}://{Vars().host}', auth=((Vars().login, Vars().password)))
+        JiraHelper.main()
+    except Exception as e:
+        print(f'Connection to {Vars().host} failed')
+        exit()
     # issue = 'VM-10463'
     # res = req.get(f'{Vars().protocol_d}://{Vars().host}/rest/api/2/issue/{issue}', auth=((Vars().login, Vars().password)))
     # res = json.loads(res.text)
