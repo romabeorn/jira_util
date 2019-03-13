@@ -201,7 +201,7 @@ class TestRun(Vars):
         obj.get_structure_test_runs_from_jira()
         obj.order_gotten_test_runs()
         for order_id, name in enumerate(obj.test_runs_list, 1):
-            if test_run_name[0] == name:
+            if test_run_name == name:
                 return obj.test_runs_json[f'{order_id}']
 
     def setup_interactive_mode(self):
