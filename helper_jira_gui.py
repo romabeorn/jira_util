@@ -702,6 +702,7 @@ class PlotTestRuns(TestRun):
         self.range_first_test_run = ''
         self.range_last_test_run = ''
         self.selective_selected_test_run = []
+        self.massive_of_tr = set()
 
     @staticmethod
     def accept_values(value, test_runs_list):
@@ -772,6 +773,9 @@ class PlotTestRuns(TestRun):
         server = HTTPServer(('', Vars().PORT_NUMBER), myHandler)
         server.serve_forever()
 
+    def set_massive_to_draw(self, tr_id):
+        self.massive_of_tr.add(tr_id)
+
     @staticmethod
     def input_ordered_ids_of_set(test_runs_list):
         massive = set()
@@ -809,10 +813,7 @@ class PlotTestRuns(TestRun):
         return bugs_array, global_list_of_bugs_with_run
 
     def setup_plot_interactive_mode(self):
-        mode = input('\nSelect mode of plotting\n'
-                     '1. Range mode\n'
-                     '2. Selective mode\n'
-                     'Enter: ')
+        mode = '2'
         try:
             self.selected_mode_of_plotting = mode
             if mode == '1':
